@@ -1,6 +1,7 @@
 # Cityello 🍁
 
 ### Urban Neighborhood livability analytics for Indian cities.
+> 15,8000+ POI's | across 3 cities (Pune, Banglore, Mumbai)
 
 "Which neighborhood should I live in?" is one of the most consequential decisions a person makes, and the only available answers are word-of-mouth and listings from people with a financial interest in your choice. I wanted to see what an honest, data-driven answer looks like.
 
@@ -128,12 +129,6 @@ Same city. Same data. Same pipeline. Different inputs, different rankings  ►  
 
 <p align="center">
   <img src="images/5.pca.png" width="900"/>
-</p>
-
----
-
-<p align="center">
-  <img src="images/6.datajourney.png" width="900"/>
 </p>
 
 ---
