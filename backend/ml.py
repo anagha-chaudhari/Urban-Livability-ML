@@ -20,9 +20,12 @@ from sklearn.decomposition import PCA
 
 logger = logging.getLogger(__name__)
 
+# v3: density features (POIs per km²) instead of raw counts
+# raw counts are still shown in UI but ML clusters on density
+# reason: 8 restaurants in 0.5km² ≠ 8 restaurants in 5km²
 FEATURE_COLS = [
-    "food_count", "transit_count", "health_count", "green_count",
-    "education_count", "finance_count", "shopping_count",
+    "food_density", "transit_density", "health_density", "green_density",
+    "education_density", "finance_density", "shopping_density"
 ]
 
 TIER_LABELS = {

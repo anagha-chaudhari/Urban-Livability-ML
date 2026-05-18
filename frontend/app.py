@@ -7,161 +7,400 @@ from folium.plugins import Fullscreen
 from streamlit_folium import st_folium
 
 st.set_page_config(
-    page_title="CityPulse — Neighborhood Intelligence",
-    page_icon="🏙️",
+    page_title="Cityello ~ Find Your Neighborhood",
+    page_icon="🍁",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-/* Global White Base Setup */
-html, body, [class*="css"], .main {
-    font-family: 'Space Grotesk', sans-serif;
-    background-color: #ffffff !important;
-    color: #1e293b !important;
+*,*::before,*::after{
+    box-sizing:border-box
 }
 
-.block-container {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-    max-width: 1440px;
+html,body,[class*="css"]{
+    font-family:'DM Sans',sans-serif;
+    background:#faf9f7!important;
+    color:#1a1a1a!important;
+    font-size:17px!important;
+    line-height:1.6!important
 }
 
-/* Structural Grids Hierarchy */
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: #0f172a !important;
-    margin-top: 0px;
+.block-container{
+    padding:2rem 2.5rem 3rem;
+    max-width:1480px
 }
 
-/* Premium Blueprint Sidebar Restyling */
-section[data-testid="stSidebar"] {
-    background-color: #ffffff !important;
-    border-right: 3px solid #0f172a !important;
-    padding: 10px;
-}
-section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-section[data-testid="stSidebar"] label {
-    color: #1e293b !important;
-    font-weight: 600;
+section[data-testid="stSidebar"]{
+    background:#1a1a1a!important;
+    border-right:none
 }
 
-/* Sketchpen Border Box Structures */
-.city-container {
-    background: #ffffff;
-    border: 3px solid #0f172a;
-    border-radius: 6px;
-    padding: 22px;
-    margin-bottom: 16px !important; /* Fixed vertical layout collapsing gaps */
-    box-shadow: 4px 4px 0px 0px #0f172a;
+section[data-testid="stSidebar"] *{
+    color:#e8e4dc!important;
+    font-size:17px!important
 }
 
-.hero-section {
-    background: #f8fafc;
-    border: 3px solid #0f172a;
-    border-radius: 8px;
-    padding: 28px;
-    margin-bottom: 20px;
-    box-shadow: 6px 6px 0px 0px #0f172a;
+section[data-testid="stSidebar"] .stSlider label,
+section[data-testid="stSidebar"] .stSelectbox label,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p{
+    color:#a8a49c!important;
+    font-size:15px!important;
+    font-weight:500!important;
+    text-transform:uppercase;
+    letter-spacing:0.06em
 }
 
-.zone-card {
-    border: 3px solid #0f172a;
-    border-radius: 6px;
-    padding: 18px;
-    margin-bottom: 12px;
-    box-shadow: 4px 4px 0px 0px #0f172a;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.zone-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px 0px #0f172a;
+h1,h2,h3,h4{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.02em;
+    color:#1a1a1a!important
 }
 
-/* Badges & Tags */
-.tier-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border: 2px solid #0f172a;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+.badge{
+    display:inline-block;
+    padding:5px 14px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    font-family:'DM Mono',monospace
 }
 
-.stat-chip {
-    background: #ffffff;
-    border: 2px solid #0f172a;
-    color: #0f172a;
-    border-radius: 4px;
-    padding: 5px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-    margin: 4px 6px 4px 0;
+.badge-online{
+    background:#1e3a5f;
+    color:#eaf2ff
 }
 
-.score-number {
-    font-family: 'JetBrains+Mono', monospace;
-    font-size: 38px;
-    font-weight: 700;
-    line-height: 1;
-    margin-top: 6px;
+.badge-offline{
+    background:#1e3a5f;
+    color:#eaf2ff
 }
 
-/* Specialized Custom Alert Banner Panels */
-.confidence-high { border: 3px solid #0f172a; border-left: 10px solid #16a34a; background: #ffffff; color: #166534; box-shadow: 4px 4px 0px 0px #0f172a; }
-.confidence-moderate { border: 3px solid #0f172a; border-left: 10px solid #d97706; background: #ffffff; color: #92400e; box-shadow: 4px 4px 0px 0px #0f172a; }
-.confidence-low { border: 3px solid #0f172a; border-left: 10px solid #dc2626; background: #ffffff; color: #991b1b; box-shadow: 4px 4px 0px 0px #0f172a; }
-
-.cache-badge {
-    background: #ffffff;
-    border: 2px solid #16a34a;
-    color: #16a34a;
-    border-radius: 4px;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 700;
+.badge-cached{
+    background:#e8f4fd;
+    color:#1a4a7f
 }
 
-/* Custom Overrides for Native Elements */
-div[data-testid="stMetric"] {
-    background: #ffffff !important;
-    border: 3px solid #0f172a !important;
-    border-radius: 6px !important;
-    padding: 14px !important;
-    box-shadow: 3px 3px 0px 0px #0f172a !important;
+.chip{
+    display:inline-block;
+    background:#ffffff;
+    border:1.5px solid #e0ddd8;
+    border-radius:6px;
+    padding:6px 14px;
+    font-size:14px;
+    font-weight:500;
+    color:#4a4a4a;
+    margin:4px 6px 4px 0;
+    font-family:'DM Mono',monospace
 }
 
-/* Tabs Navigation Styling Layouts */
-button[data-baseweb="tab"] {
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    color: #64748b !important;
-    border: 2px solid transparent !important;
-}
-button[aria-selected="true"] {
-    color: #0f172a !important;
-    background: #f8fafc !important;
-    border: 3px solid #0f172a !important;
-    border-bottom: 3px solid #f8fafc !important;
-    border-radius: 6px 6px 0 0 !important;
+.hero{
+    background:#1a1a1a;
+    border-radius:16px;
+    padding:48px 52px;
+    margin-bottom:32px;
+    position:relative;
+    overflow:hidden
 }
 
-/* System Vectors Core SVGs Icons Dimensions Mapping */
-.panel-icon {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    vertical-align: text-top;
-    margin-right: 6px;
-    fill: currentColor;
+.hero::before{
+    content:'';
+    position:absolute;
+    top:-60px;
+    right:-60px;
+    width:280px;
+    height:280px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(255,220,100,0.12) 0%,transparent 70%);
+    pointer-events:none
+}
+
+.hero h1{
+    font-family:'Fraunces',serif;
+    font-size:52px;
+    font-weight:600;
+    color:#faf9f7!important;
+    margin:0 0 10px;
+    letter-spacing:-0.03em;
+    line-height:1.1
+}
+
+.hero p{
+    font-size:18px;
+    color:#a8a49c;
+    margin:0 0 24px;
+    max-width:680px;
+    line-height:1.8;
+    font-weight:300
+}
+
+.hero .chip{
+    background:rgba(255,255,255,0.06);
+    border-color:rgba(255,255,255,0.12);
+    color:#a8a49c
+}
+
+.n-card{
+    background:#ffffff;
+    border:1.5px solid #e8e4dc;
+    border-radius:14px;
+    padding:24px;
+    height:100%;
+    position:relative;
+    overflow:hidden
+}
+
+.n-card .accent-bar{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:4px;
+    border-radius:14px 14px 0 0
+}
+
+.n-card .rank-num{
+    font-family:'DM Mono',monospace;
+    font-size:13px;
+    color:#9a9690;
+    font-weight:500;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:4px
+}
+
+.n-card .zone-name{
+    font-family:'Fraunces',serif;
+    font-size:24px;
+    font-weight:600;
+    color:#1a1a1a;
+    margin-bottom:4px;
+    line-height:1.2
+}
+
+.n-card .tier-pill{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    margin-bottom:16px
+}
+
+.n-card .score-big{
+    font-family:'Fraunces',serif;
+    font-size:56px;
+    font-weight:300;
+    line-height:1;
+    color:#1a1a1a;
+    margin-bottom:4px
+}
+
+.n-card .score-label{
+    font-size:13px;
+    color:#9a9690;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:16px;
+    font-family:'DM Mono',monospace
+}
+
+.n-card .stats-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-top:14px
+}
+
+.n-card .stat-item{
+    background:#faf9f7;
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:14px;
+    color:#4a4a4a
+}
+
+.n-card .stat-item b{
+    display:block;
+    font-family:'DM Mono',monospace;
+    font-size:18px;
+    color:#1a1a1a;
+    font-weight:500
+}
+
+.section-wrap{
+    background:#ffffff;
+    border:1.5px solid #e8e4dc;
+    border-radius:14px;
+    padding:28px 30px;
+    margin-bottom:20px
+}
+
+.section-title{
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    font-weight:600;
+    color:#1a1a1a;
+    margin-bottom:4px
+}
+
+.section-desc{
+    font-size:16px;
+    color:#6b6860;
+    margin-bottom:20px;
+    line-height:1.8;
+    max-width:720px
+}
+
+.ml-metric{
+    background:#faf9f7;
+    border:1.5px solid #e8e4dc;
+    border-radius:10px;
+    padding:18px 20px;
+    text-align:center
+}
+
+.ml-metric .val{
+    font-family:'Fraunces',serif;
+    font-size:40px;
+    font-weight:300;
+    color:#1a1a1a;
+    line-height:1;
+    margin-bottom:4px
+}
+
+.ml-metric .lbl{
+    font-size:13px;
+    color:#9a9690;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-family:'DM Mono',monospace
+}
+
+.conf-banner{
+    border-radius:10px;
+    padding:16px 22px;
+    margin-bottom:20px;
+    font-size:16px;
+    border-left:5px solid;
+    font-weight:500
+}
+
+.conf-high{
+    background:#f0fdf4;
+    border-color:#16a34a;
+    color:#166534
+}
+
+.conf-moderate{
+    background:#fffbeb;
+    border-color:#d97706;
+    color:#92400e
+}
+
+.conf-low{
+    background:#fef2f2;
+    border-color:#dc2626;
+    color:#991b1b
+}
+
+[data-testid="metric-container"]{
+    background:#ffffff!important;
+    border:1.5px solid #e8e4dc!important;
+    border-radius:10px!important;
+    padding:16px!important
+}
+
+[data-testid="stMetricValue"]{
+    font-family:'Fraunces',serif!important
+}
+
+[data-baseweb="tab-list"]{
+    background:#f4f2ef!important;
+    border-radius:10px!important;
+    padding:4px!important;
+    gap:2px!important
+}
+
+button[data-baseweb="tab"]{
+    border-radius:8px!important;
+    font-size:17px!important;
+    font-weight:500!important;
+    color:#6b6860!important;
+    padding:8px 18px!important
+}
+
+button[aria-selected="true"]{
+    background:#ffffff!important;
+    color:#1a1a1a!important;
+    box-shadow:0 1px 4px rgba(0,0,0,0.08)!important
+}
+
+.pipeline-step{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding:12px 0;
+    border-bottom:1px solid #f0ede8
+}
+
+.pipeline-step:last-child{
+    border-bottom:none
+}
+
+.step-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#1a1a1a;
+    margin-top:6px;
+    flex-shrink:0
+}
+
+.step-label{
+    font-size:16px;
+    color:#4a4a4a;
+    line-height:1.7
+}
+
+.step-count{
+    font-family:'DM Mono',monospace;
+    font-weight:500;
+    color:#1a1a1a
+}
+
+.stButton>button{
+    background:#1a1a1a!important;
+    color:#faf9f7!important;
+    border:none!important;
+    border-radius:10px!important;
+    font-family:'DM Sans',sans-serif!important;
+    font-weight:600!important;
+    font-size:13px!important;
+    padding:12px 24px!important;
+    transition:opacity 0.2s!important
+}
+
+.stButton>button:hover{
+    opacity:0.85!important
+}
+            
+section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] > div{
+    color:#faf9f7!important;
+    background:#2a2a2a!important;
+    font-size:13px!important
+}
+
+section[data-testid="stSidebar"] .stSelectbox svg{
+    fill:#faf9f7!important
 }
 </style>
 """, unsafe_allow_html=True)
@@ -169,450 +408,392 @@ button[aria-selected="true"] {
 API_URL = "http://127.0.0.1:8000"
 
 TIER_COLORS = {
-    "Premium":         "#16a34a",  # Urban Parks Green
-    "Good":            "#22c55e",  # Secondary Green
-    "Balanced":        "#eab308",  # Industrial Amber / Yellow
-    "Economy":         "#f97316",  # Signal Orange
-    "Budget Friendly": "#ea580c",  # Deep Transit Orange
-    "Unclustered":     "#64748b",  # Zinc/Gray
-    "Uniform":         "#64748b",
+    "Premium":"#16a34a","Good":"#22c55e","Balanced":"#eab308",
+    "Economy":"#f97316","Budget Friendly":"#ea580c",
+    "Unclustered":"#94a3b8","Uniform":"#94a3b8",
 }
-
-TIER_CARD_STYLE = {
-    "Premium":         {"bg": "#f0fdf4", "text": "#14532d", "accent": "#16a34a"},
-    "Good":            {"bg": "#f0fdf4", "text": "#14532d", "accent": "#22c55e"},
-    "Balanced":        {"bg": "#fefce8", "text": "#713f12", "accent": "#ca8a04"},
-    "Economy":         {"bg": "#fff7ed", "text": "#7c2d12", "accent": "#ea580c"},
-    "Budget Friendly": {"bg": "#fff7ed", "text": "#7c2d12", "accent": "#dc2626"},
-    "Unclustered":     {"bg": "#f8fafc", "text": "#334155", "accent": "#64748b"},
-    "Uniform":         {"bg": "#f8fafc", "text": "#334155", "accent": "#64748b"},
+TIER_BG = {
+    "Premium":"#dcfce7","Good":"#dcfce7","Balanced":"#fef9c3",
+    "Economy":"#ffedd5","Budget Friendly":"#fee2e2",
+    "Unclustered":"#f1f5f9","Uniform":"#f1f5f9",
 }
-
-SVG_ICONS = {
-    "city": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M19 2H5c-1.1 0-2 .9-2 2v18h18V4c0-1.1-.9-2-2-2zm-6 18h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm0-4h-2V4h2v2zm6 12h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm0-4h-2V4h2v2zM7 20H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V8h2v2zm0-4H5V4h2v2z"/></svg>',
-    "food": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm7-3c-2.21 0-4 1.79-4 4v12h8V10c0-2.21-1.79-4-4-4z"/></svg>',
-    "transit": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>',
-    "health": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>',
-    "green": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M12 2C11.31 2 10 3.44 10 5c0 1.31 1.12 2.19 2 3 .88-.81 2-1.69 2-3 0-1.56-1.31-3-2-3zm0 6c-3.07 0-5.5 2.43-5.5 5.5 0 2.24 1.25 4.14 3.06 5.05l-.56 2.45h6l-.56-2.45c1.81-.91 3.06-2.81 3.06-5.05C17.5 10.43 15.07 8 12 8z"/></svg>',
-    "education": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>',
-    "finance": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 22h19v-3H2zm15-12h3v7h-3zM11.5 2L2 7h19z"/></svg>',
-    "shopping": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zM1 2h20v2H1z"/></svg>',
-    "settings": '<svg class="panel-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>'
+TIER_TEXT = {
+    "Premium":"#14532d","Good":"#14532d","Balanced":"#713f12",
+    "Economy":"#7c2d12","Budget Friendly":"#7f1d1d",
+    "Unclustered":"#334155","Uniform":"#334155",
 }
-
 PERSONA_WEIGHTS = {
-    "Student": {
-        "food": 3, "transit": 5, "health": 1,
-        "green": 1, "education": 5, "finance": 2, "shopping": 2,
-    },
-    "Working Professional": {
-        "food": 4, "transit": 4, "health": 2,
-        "green": 2, "education": 1, "finance": 3, "shopping": 3,
-    },
-    "Family": {
-        "food": 3, "transit": 3, "health": 5,
-        "green": 4, "education": 4, "finance": 2, "shopping": 3,
-    },
+    "Student": {"food":3,"transit":5,"health":1,"green":1,"education":5,"finance":2,"shopping":2},
+    "Working Professional": {"food":4,"transit":4,"health":2,"green":2,"education":1,"finance":3,"shopping":3},
+    "Family": {"food":3,"transit":3,"health":5,"green":4,"education":4,"finance":2,"shopping":3},
 }
 
-def check_backend_health() -> bool:
-    try:
-        r = requests.get(f"{API_URL}/health", timeout=3)
-        return r.status_code == 200
-    except Exception:
-        return False
+def check_backend():
+    try: return requests.get(f"{API_URL}/health",timeout=3).status_code==200
+    except: return False
 
-def call_api(city: str, weights: dict, n_zones: int) -> dict:
+def call_api(city,weights,n_zones):
     try:
-        response = requests.post(
-            f"{API_URL}/score",
-            json={"city": city, "weights": weights, "n_zones": n_zones},
-            timeout=180,
-        )
+        r=requests.post(f"{API_URL}/score",json={"city":city,"weights":weights,"n_zones":n_zones},timeout=180)
     except requests.exceptions.ConnectionError:
-        raise RuntimeError(
-            "Cannot connect to the backend. "
-            "Make sure FastAPI is running: `uvicorn api:app --reload`"
-        )
+        raise RuntimeError("Can't reach the backend. Run: uvicorn main:app --reload")
     except requests.exceptions.Timeout:
-        raise RuntimeError(
-            "Request timed out after 3 minutes. "
-            "The dataset may be too large — try reducing the number of zones."
-        )
+        raise RuntimeError("Request timed out. Try fewer zones.")
     except Exception as e:
-        raise RuntimeError(f"Unexpected network error: {e}")
+        raise RuntimeError(f"Network error: {e}")
+    if r.status_code!=200:
+        try: detail=r.json().get("detail",r.text)
+        except: detail=r.text
+        raise RuntimeError(f"API {r.status_code}: {detail}")
+    return r.json()
 
-    if response.status_code != 200:
-        try:
-            detail = response.json().get("detail", response.text)
-        except Exception:
-            detail = response.text
-        raise RuntimeError(f"API error {response.status_code}: {detail}")
-
-    return response.json()
-
-def build_map(df: pd.DataFrame) -> folium.Map:
-    m = folium.Map(
-        location=[df["lat"].mean(), df["lon"].mean()],
-        zoom_start=11,
-        tiles="CartoDB positron", 
-    )
+def build_map(df):
+    m=folium.Map(location=[df["lat"].mean(),df["lon"].mean()],zoom_start=11,tiles="CartoDB positron")
     Fullscreen().add_to(m)
-
-    max_score = df["total_score"].max() or 1.0
-
-    for _, row in df.iterrows():
-        radius = 8 + (row["total_score"] / max_score) * 16
-        color = TIER_COLORS.get(row.get("tier", ""), "#38bdf8")
-
-        popup_html = f"""
-        <div style='font-family:Space Grotesk,sans-serif;min-width:200px;
-                    background:#ffffff;color:#1e293b;padding:14px;border:3px solid #0f172a;border-radius:6px;'>
-            <b style='font-size:15px;display:block;margin-bottom:2px;color:#0f172a;'>{row['zone_id']}</b>
-            <span style='color:{color};font-weight:700;font-size:12px;text-transform:uppercase;'>{row.get('tier','')}</span>
-            <span style='font-size:24px;font-weight:700;color:#0f172a;
-                         display:block;margin:6px 0'>{row['total_score']:.1f}</span>
-            <hr style='border-color:#0f172a;margin:8px 0'>
-            <div style='font-size:12px;line-height:1.6;color:#1e293b;'>
-                Food Allocation: <b>{row['food_count']}</b><br>
-                Transit Access: <b>{row['transit_count']}</b><br>
-                Health Vectors: <b>{row['health_count']}</b><br>
-                Green Canopy: <b>{row['green_count']}</b><br>
-                Education Nodes: <b>{row['education_count']}</b><br>
-                Shopping Density: <b>{row['shopping_count']}</b>
+    max_score=df["total_score"].max() or 1.0
+    for _,row in df.iterrows():
+        radius=9+(row["total_score"]/max_score)*15
+        color=TIER_COLORS.get(row.get("tier",""),"#64748b")
+        popup=f"""
+        <div style='font-family:DM Sans,sans-serif;padding:14px 16px;min-width:200px;
+                    background:#fff;border-radius:10px;border:1.5px solid #e8e4dc;'>
+            <div style='font-weight:700;font-size:15px;color:#1a1a1a;margin-bottom:2px'>{row['zone_id']}</div>
+            <div style='font-size:11px;font-weight:600;text-transform:uppercase;
+                        letter-spacing:0.06em;color:{color};margin-bottom:10px'>{row.get('tier','')}</div>
+            <div style='font-size:30px;font-weight:300;color:#1a1a1a;line-height:1;margin-bottom:8px'>{row['total_score']:.1f}</div>
+            <hr style='border:none;border-top:1.5px solid #e8e4dc;margin:8px 0'>
+            <div style='font-size:12px;color:#4a4a4a;line-height:1.8'>
+                Food: <b>{row['food_count']}</b> &nbsp; Transit: <b>{row['transit_count']}</b><br>
+                Health: <b>{row['health_count']}</b> &nbsp; Green: <b>{row['green_count']}</b><br>
+                Education: <b>{row['education_count']}</b> &nbsp; Shopping: <b>{row['shopping_count']}</b>
             </div>
-        </div>
-        """
-
+        </div>"""
         folium.CircleMarker(
-            location=[row["lat"], row["lon"]],
-            radius=radius,
-            color="#0f172a",
-            weight=3,
-            fill=True,
-            fill_color=color,
-            fill_opacity=0.85,
-            popup=folium.Popup(popup_html, max_width=260),
-            tooltip=f"{row['zone_id']} — {row['total_score']:.1f}",
+            location=[row["lat"],row["lon"]],radius=radius,
+            color=color,weight=2.5,fill=True,fill_color=color,fill_opacity=0.82,
+            popup=folium.Popup(popup,max_width=260),
+            tooltip=f"{row['zone_id']}  ·  {row['total_score']:.1f}",
         ).add_to(m)
-
     return m
 
+# Sidebar
+
+backend_ok=check_backend()
 st.sidebar.markdown(
-    f"<h2 style='margin-bottom:4px;color:#0f172a;'>{SVG_ICONS['city']} CityPulse</h2>"
-    "<p style='color:#475569;font-size:13px;margin-top:0;margin-bottom:16px;'>Spatial Intelligence Platform</p>",
-    unsafe_allow_html=True,
-)
+    "<div style='padding:8px 0 20px'>"
+    "<div style='font-family:Fraunces,serif;font-size:26px;font-weight:600;"
+    "color:#faf9f7;letter-spacing:-0.02em;margin-bottom:4px'>Cityello</div>"
+    "<div style='font-size:11px;color:#6b6860;text-transform:uppercase;"
+    "letter-spacing:0.1em;font-family:DM Mono,monospace'>Neighborhood Intelligence</div>"
+    "</div>",unsafe_allow_html=True)
 
-backend_ok = check_backend_health()
-if backend_ok:
-    st.sidebar.markdown(
-        "<span style='background:#ffffff;color:#16a34a;border:2px solid #16a34a;"
-        "border-radius:4px;padding:4px 12px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:20px;'>"
-        "CORE CONNECTED</span>",
-        unsafe_allow_html=True,
-    )
-else:
-    st.sidebar.markdown(
-        "<span style='background:#ffffff;color:#dc2626;border:2px solid #dc2626;"
-        "border-radius:4px;padding:4px 12px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:20px;'>"
-        "CORE OFFLINE</span>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.error("Start Core Matrix Module:\n```\nuvicorn api:app --reload\n```")
+st.sidebar.markdown(
+    f"<span class='badge {'badge-online' if backend_ok else 'badge-offline'}'>"
+    f"{'● System Online' if backend_ok else '● System Offline'}</span>",
+    unsafe_allow_html=True)
 
-st.sidebar.markdown("<hr style='border-color:#0f172a;border-width:2px;margin:12px 0;' />", unsafe_allow_html=True)
+if not backend_ok:
+    st.sidebar.error("Start the API:\n```\nuvicorn main:app --reload --port 8000\n```")
 
-city = st.sidebar.selectbox("Location Coordinate Matrix", ["Pune", "Bangalore", "Mumbai"])
-persona = st.sidebar.selectbox("Optimization Footprint Profile", list(PERSONA_WEIGHTS.keys()))
-preset = PERSONA_WEIGHTS[persona]
+st.sidebar.markdown("<hr style='border-color:#2a2a2a;margin:20px 0'>",unsafe_allow_html=True)
+city=st.sidebar.selectbox("City",["Pune","Bangalore","Mumbai"])
+persona=st.sidebar.selectbox("Who are you?",list(PERSONA_WEIGHTS.keys()))
+preset=PERSONA_WEIGHTS[persona]
 
-st.sidebar.markdown(f"<h4 style='color:#0f172a;margin-top:20px;margin-bottom:10px;'>{SVG_ICONS['settings']} Structural Balancing Vectors</h4>", unsafe_allow_html=True)
-weights = {
-    "food":      st.sidebar.slider("Food Grid Index",     0, 5, preset["food"]),
-    "transit":   st.sidebar.slider("Transit Node Network",    0, 5, preset["transit"]),
-    "health":    st.sidebar.slider("Medical Infrastructure",  0, 5, preset["health"]),
-    "green":     st.sidebar.slider("Environmental Parks",0, 5, preset["green"]),
-    "education": st.sidebar.slider("Educational Footprint",   0, 5, preset["education"]),
-    "finance":   st.sidebar.slider("Financial Hub Matrix",     0, 5, preset["finance"]),
-    "shopping":  st.sidebar.slider("Commercial Retail Grid",    0, 5, preset["shopping"]),
+st.sidebar.markdown(
+    "<div style='margin-top:16px;font-family:DM Mono,monospace;font-size:11px;"
+    "color:#6b6860;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px'>"
+    "Adjust what matters to you</div>",unsafe_allow_html=True)
+
+
+weights={
+    "food": st.sidebar.slider("Food & Restaurants",0,5,preset["food"]),
+    "transit": st.sidebar.slider("Public Transport",0,5,preset["transit"]),
+    "health": st.sidebar.slider("Hospitals & Clinics",0,5,preset["health"]),
+    "green": st.sidebar.slider("Parks & Green Space",0,5,preset["green"]),
+    "education": st.sidebar.slider("Schools & Colleges",0,5,preset["education"]),
+    "finance": st.sidebar.slider("Banks & ATMs",0,5,preset["finance"]),
+    "shopping": st.sidebar.slider("Markets & Shops",0,5,preset["shopping"]),
 }
-n_zones = st.sidebar.slider("Target Regional Segmentations", 6, 18, 12)
+n_zones=st.sidebar.slider("Zones to analyze",6,18,12)
+st.sidebar.markdown("<div style='margin-top:24px'>",unsafe_allow_html=True)
+analyze_clicked=st.sidebar.button("Analyze →",use_container_width=True,type="primary")
+st.sidebar.markdown("</div>",unsafe_allow_html=True)
 
-st.sidebar.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-analyze_clicked = st.sidebar.button(
-    "Run Environmental Optimization Analysis", use_container_width=True, type="primary"
-)
+# 🍊 session state
+
+if "result_data" not in st.session_state: st.session_state.result_data=None
+if "result_city" not in st.session_state: st.session_state.result_city=None
+
+# Hero
 
 st.markdown(f"""
-<div class='hero-section'>
-    <h1 style='margin:0 0 6px;font-size:38px;font-weight:800;'>{SVG_ICONS['city']} CityPulse Intelligence Console</h1>
-    <p style='color:#334155;font-size:16px;margin:0 0 18px;font-weight:500;max-width:950px;'>
-        Spatial variance analysis engine using unsupervised partition configurations and principal components coordinates to evaluate urban zoning distributions.
-    </p>
+<div class='hero'>
+    <h1>Find where you actually<br><em style='font-style:italic;font-weight:300'>want</em> to live.</h1>
+    <p>Cityello pulls real amenity data across {city} and uses unsupervised machine learning
+    to rank neighborhoods by what matters to <em>you.</em>
+    Adjust the sliders, hit analyze, get answers.</p>
     <div>
-        <span class='stat-chip'>Spatial Stream Array</span>
-        <span class='stat-chip'>K-Means Clustering Cluster</span>
-        <span class='stat-chip'>Haversine Vectors Engine</span>
-        <span class='stat-chip'>Protected Edge Interface</span>
+        <span class='chip'>15,897+ POIs indexed</span>
+        <span class='chip'>3 Indian cities</span>
+        <span class='chip'>KMeans + PCA clustering</span>
+        <span class='chip'>SQLite cached</span>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""",unsafe_allow_html=True)
 
-if "result_data" not in st.session_state:
-    st.session_state.result_data = None
-if "result_city" not in st.session_state:
-    st.session_state.result_city = None
+# Analysis run
 
 if analyze_clicked:
     if not backend_ok:
-        st.error("System pipeline indicates database processing module offline.")
+        st.error("Backend is offline — can't run analysis.")
     else:
-        with st.spinner(f"Computing optimization parameters for {city} spatial matrices…"):
+        with st.spinner(f"Crunching {city} data…"):
             try:
-                data = call_api(city, weights, n_zones)
-                st.session_state.result_data = data
-                st.session_state.result_city = city
-                st.success("Target analysis matrix calculated.")
+                data=call_api(city,weights,n_zones)
+                st.session_state.result_data=data
+                st.session_state.result_city=city
             except RuntimeError as e:
-                st.error(f"Structural Computation Fault: {e}")
-                st.session_state.result_data = None
+                st.error(str(e))
+                st.session_state.result_data=None
 
-data = st.session_state.result_data
+data=st.session_state.result_data
 
 if data is None:
     st.markdown("""
-    <div class='city-container' style='text-align:center;padding:50px 20px;'>
-        <h3 style='color:#64748b;margin-bottom:6px;'>System Standing By for Target Activation Signals</h3>
-        <p style='color:#94a3b8;font-size:15px;margin:0;'>Adjust coordinate inputs inside the parameter sidebar options and execute optimization to process regional footprints.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    <div style='text-align:center;padding:60px 20px;background:#ffffff;
+                border:1.5px solid #e8e4dc;border-radius:14px;'>
+        <div style='font-family:Fraunces,serif;font-size:28px;font-weight:300;
+                    color:#1a1a1a;margin-bottom:10px'>Waiting for your input.</div>
+        <div style='font-size:14px;color:#9a9690;max-width:400px;margin:0 auto;line-height:1.7'>
+            Pick a city, choose your lifestyle profile, adjust what matters to you,
+            and hit <strong>Analyze →</strong>
+        </div>
+    </div>""",unsafe_allow_html=True)
     st.stop()
 
-# Extract Data Structures
-neighborhoods = data.get("neighborhoods", [])
-ml_eval       = data.get("ml_evaluation", {})
-summary       = data.get("data_summary", {})
-confidence    = data.get("confidence", "unknown")
-conf_warning  = data.get("confidence_warning")
+neighborhoods=data.get("neighborhoods",[])
+ml_eval=data.get("ml_evaluation",{})
+summary=data.get("data_summary",{})
+confidence=data.get("confidence","unknown")
+conf_warning=data.get("confidence_warning")
 
 if not neighborhoods:
-    st.error("Empty configuration returns. Diagnostics metrics pipeline contains null values.")
+    st.error("No results returned. Check the terminal for backend errors.")
     st.stop()
 
-df = pd.DataFrame(neighborhoods)
+df=pd.DataFrame(neighborhoods)
 
 if conf_warning:
-    css_class = f"confidence-{confidence}"
+    icons={"high":"✓","moderate":"⚠","low":"✕"}
     st.markdown(
-        f"<div class='zone-card {css_class}' style='margin-bottom:16px;padding:14px 20px;font-size:14px;font-weight:700;'>"
-        f"Validation Report &rarr; Clustering Model Target Profile Confidence: [{confidence.upper()}] — {conf_warning}"
-        f"</div>",
-        unsafe_allow_html=True,
-    )
+        f"<div class='conf-banner conf-{confidence}'>"
+        f"<strong>{icons.get(confidence,'i')} Clustering confidence: {confidence.upper()}</strong>"
+        f" — {conf_warning}</div>",unsafe_allow_html=True)
 
 if summary.get("served_from_cache"):
     st.markdown(
-        "<div style='margin-bottom:16px;'><span class='cache-badge'>Active Data Cache Match Found &mdash; Bypassing Live Query Latency</span></div>",
-        unsafe_allow_html=True,
-    )
+        "<span class='badge badge-cached' style='margin-bottom:20px;display:inline-block'>"
+        "⚡ Loaded from cache. </span>",unsafe_allow_html=True)
 
-st.markdown("<h2 style='margin-top:24px;margin-bottom:14px;'>Primary Layout Recommendations</h2>", unsafe_allow_html=True)
-top3 = df.head(3)
-cols = st.columns(3)
+# Top 3 neighboorhoods
 
-for i, (_, row) in enumerate(top3.iterrows()):
-    tier = row.get("tier", "Unclustered")
-    style_config = TIER_CARD_STYLE.get(tier, TIER_CARD_STYLE["Unclustered"])
-    
-    bg_color = style_config["bg"]
-    text_color = style_config["text"]
-    accent_color = style_config["accent"]
-    
+st.markdown(
+    "<h2 style='font-size:28px;margin-bottom:4px'>Top neighborhoods for you</h2>"
+    f"<p style='color:#6b6860;font-size:14px;margin-bottom:20px'>"
+    f"Ranked by your {persona.lower()} profile · {st.session_state.result_city}</p>",
+    unsafe_allow_html=True)
+
+top3=df.head(3)
+cols=st.columns(3)
+for i,(_,row) in enumerate(top3.iterrows()):
+    tier=row.get("tier","Unclustered")
+    color=TIER_COLORS.get(tier,"#94a3b8")
+    bg=TIER_BG.get(tier,"#f1f5f9")
+    txtcol=TIER_TEXT.get(tier,"#334155")
     with cols[i]:
-        st.markdown(
-            f"""
-            <div class='zone-card' style='background: {bg_color}; border-top: 8px solid {accent_color}; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between;'>
-                <div>
-                    <div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>
-                        <span style='font-weight:700;font-size:16px;color:#0f172a'>
-                            #{int(row.get('rank', i+1))} {row['zone_id']}
-                        </span>
-                        <span class='tier-badge' style='color:#0f172a;background:#ffffff;'>
-                            {tier}
-                        </span>
-                    </div>
-                    <div class='score-number' style='color:#0f172a'>{row['total_score']:.1f}</div>
-                    <div style='font-size:11px;color:#475569;text-transform:uppercase;font-weight:700;letter-spacing:0.02em;margin-top:2px;'>Suitability Index Target</div>
-                </div>
-                <div>
-                    <hr style='border-color:#0f172a;border-width:2px;margin:10px 0 8px 0;'>
-                    <div style='font-size:12px;color:#0f172a;line-height:1.6;font-family:\"JetBrains Mono\",monospace;font-weight:500;'>
-                        {SVG_ICONS['food']} Fd: <b>{row['food_count']}</b> &nbsp;·&nbsp; {SVG_ICONS['transit']} Tr: <b>{row['transit_count']}</b> &nbsp;·&nbsp; {SVG_ICONS['health']} Hl: <b>{row['health_count']}</b><br>
-                        {SVG_ICONS['green']} Gr: <b>{row['green_count']}</b> &nbsp;·&nbsp; {SVG_ICONS['education']} Ed: <b>{row['education_count']}</b> &nbsp;·&nbsp; {SVG_ICONS['shopping']} Sh: <b>{row['shopping_count']}</b>
-                    </div>
-                </div>
+        st.markdown(f"""
+        <div class='n-card'>
+            <div class='accent-bar' style='background:{color}'></div>
+            <div class='rank-num' style='margin-top:8px'>#{int(row.get('rank',i+1))} Recommendation</div>
+            <div class='zone-name'>{row['zone_id']}</div>
+            <div class='tier-pill' style='background:{bg};color:{txtcol}'>{tier}</div>
+            <div class='score-big'>{row['total_score']:.1f}</div>
+            <div class='score-label'>Livability score</div>
+            <hr style='border:none;border-top:1.5px solid #e8e4dc;margin:12px 0'>
+            <div class='stats-grid'>
+                <div class='stat-item'><b>{row['food_count']}</b>Food</div>
+                <div class='stat-item'><b>{row['transit_count']}</b>Transit</div>
+                <div class='stat-item'><b>{row['health_count']}</b>Health</div>
+                <div class='stat-item'><b>{row['green_count']}</b>Green</div>
+                <div class='stat-item'><b>{row['education_count']}</b>Education</div>
+                <div class='stat-item'><b>{row['shopping_count']}</b>Shopping</div>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        </div>""",unsafe_allow_html=True)
 
-layout_col_1, layout_col_2 = st.columns([11, 7])
+# Map + Rankings
 
-with layout_col_1:
-    st.markdown("<div class='city-container' style='margin-bottom:0px !important;'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='margin-bottom:12px;'>Spatial Distribution Mapping Layout</h3>", unsafe_allow_html=True)
-    fmap = build_map(df)
-    st_folium(fmap, width=None, height=480, returned_objects=[])
-    st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("<div style='height:28px'></div>",unsafe_allow_html=True)
+map_col,rank_col=st.columns([3,2])
 
-with layout_col_2:
-    st.markdown("<div class='city-container' style='margin-bottom:0px !important;'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='margin-bottom:12px;'>Zoning Infrastructure Record Ledger</h3>", unsafe_allow_html=True)
-    display_df = df[["rank", "zone_id", "tier", "total_score"]].copy()
-    display_df.columns = ["Rank Order", "Structural Zone ID", "Assigned Clustering Tier", "Index Rating Value"]
-    display_df["Index Rating Value"] = display_df["Index Rating Value"].round(1)
-    st.dataframe(
-        display_df,
-        use_container_width=True,
-        hide_index=True,
-        height=480,
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+with map_col:
+    st.markdown("""<div class='section-wrap' style='padding-bottom:16px'>
+        <div class='section-title'>Neighborhood map</div>
+        <div class='section-desc'>Each circle is one analyzed zone. Bigger circles score higher.
+        Click any circle for the full breakdown.</div>""",unsafe_allow_html=True)
+    st_folium(build_map(df),width=None,height=480,returned_objects=[])
+    st.markdown("</div>",unsafe_allow_html=True)
 
-tab_analytics, tab_ml, tab_pipeline = st.tabs([
-    "Structural Analytics Variance Matrix",
-    "Model Partitioning Machine Learning Validation",
-    "Operational Infrastructure Data Pipeline System Logs",
-])
+with rank_col:
+    st.markdown("""<div class='section-wrap'>
+        <div class='section-title'>Full rankings</div>
+        <div class='section-desc'>Every zone scored and sorted. Tier reflects how the ML grouped them.</div>""",
+        unsafe_allow_html=True)
+    display_df=df[["rank","zone_id","tier","total_score"]].copy()
+    display_df.columns=["#","Zone","Tier","Score"]
+    display_df["Score"]=display_df["Score"].round(1)
+    st.dataframe(display_df,use_container_width=True,hide_index=True,height=480)
+    st.markdown("</div>",unsafe_allow_html=True)
+
+# Tabs
+
+st.markdown("<div style='height:8px'></div>",unsafe_allow_html=True)
+tab_analytics,tab_ml,tab_pipeline=st.tabs(["Analytics","ML Evaluation","Data Pipeline"])
 
 with tab_analytics:
-    st.markdown("<div class='city-container' style='margin-top:12px;'>", unsafe_allow_html=True)
-    st.markdown("### Comparative Performance Indices Curve")
-    
-    fig_bar = px.bar(
-        df.sort_values("total_score"),
-        x="total_score", y="zone_id", orientation="h",
-        color="tier", color_discrete_map=TIER_COLORS,
-        labels={"total_score": "Computed Livability Score Matrix", "zone_id": "Target Partition Area"},
-        title=f"Regional Metric Indices Output Profile: {st.session_state.result_city}",
-    )
-    fig_bar.update_layout(
-        height=420,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#1e293b", family="Space Grotesk"),
-        title_font=dict(color="#0f172a", size=15, family="Space Grotesk"),
-        legend_title_font=dict(color="#1e293b"),
-        xaxis=dict(gridcolor="#0f172a", gridwidth=1, zerolinecolor="#0f172a"),
-        yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-    )
-    st.plotly_chart(fig_bar, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:16px'></div>",unsafe_allow_html=True)
+    st.markdown("""<div class='section-wrap'>
+        <div class='section-title'>Score comparison</div>
+        <div class='section-desc'>Every zone ranked by livability score. Green means well-served across
+        amenities, red means sparse. The gap between zones tells you how differentiated the city is.</div>""",
+        unsafe_allow_html=True)
+    fig_bar=px.bar(df.sort_values("total_score"),x="total_score",y="zone_id",orientation="h",
+        color="tier",color_discrete_map=TIER_COLORS,
+        labels={"total_score":"Livability Score","zone_id":""})
+    fig_bar.update_layout(height=460,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#4a4a4a",family="DM Sans",size=12),
+        xaxis=dict(gridcolor="#f0ede8",zerolinecolor="#e8e4dc"),
+        yaxis=dict(gridcolor="rgba(0,0,0,0)",tickfont_size=11),
+        margin=dict(l=0,r=20,t=10,b=10))
+    st.plotly_chart(fig_bar,use_container_width=True)
+    st.markdown("</div>",unsafe_allow_html=True)
 
-    st.markdown("<div class='city-container'>", unsafe_allow_html=True)
-    st.markdown("### Regional Resource Stack Allocation density")
-    cat_cols = ["food_count", "transit_count", "health_count", "green_count", "education_count", "finance_count", "shopping_count"]
-    cat_labels = ["Food Infrastructure", "Transit Networks", "Medical Support", "Environmental Greenery", "Learning Centers", "Financial Matrix", "Retail Commercial"]
-
-    radar_df = df[["zone_id", "tier"] + cat_cols].copy()
-    radar_long = radar_df.melt(id_vars=["zone_id", "tier"], value_vars=cat_cols, var_name="category", value_name="count")
-    radar_long["category"] = radar_long["category"].map(dict(zip(cat_cols, cat_labels)))
-
-    fig_cat = px.bar(
-        radar_long,
-        x="zone_id", y="count", color="category",
-        barmode="stack",
-        labels={"count": "Categorical Density Value", "zone_id": "Zoning Unit Reference", "category": "Functional Node Type"},
-        title="Composite Composition Distribution Map (Infrastructure Density Per Segment)",
-    )
-    fig_cat.update_layout(
-        height=420,
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#1e293b", family="Space Grotesk"),
-        title_font=dict(color="#0f172a", size=15, family="Space Grotesk"),
-        xaxis=dict(tickangle=-25, gridcolor="#e2e8f0"),
-        yaxis=dict(gridcolor="#0f172a", gridwidth=1),
-    )
-    st.plotly_chart(fig_cat, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("""<div class='section-wrap'>
+        <div class='section-title'>What's inside each zone</div>
+        <div class='section-desc'>Stacked bars show the amenity mix per zone. A zone heavy on food
+        but light on health scores differently depending on your persona weights — this tells you why.</div>""",
+        unsafe_allow_html=True)
+    cat_cols=["food_count","transit_count","health_count","green_count","education_count","finance_count","shopping_count"]
+    cat_labels=["Food","Transit","Health","Green","Education","Finance","Shopping"]
+    radar_long=df[["zone_id","tier"]+cat_cols].melt(id_vars=["zone_id","tier"],value_vars=cat_cols,
+        var_name="category",value_name="count")
+    radar_long["category"]=radar_long["category"].map(dict(zip(cat_cols,cat_labels)))
+    fig_cat=px.bar(radar_long,x="zone_id",y="count",color="category",barmode="stack",
+        labels={"count":"POI Count","zone_id":"","category":"Category"})
+    fig_cat.update_layout(height=380,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#4a4a4a",family="DM Sans",size=12),
+        xaxis=dict(tickangle=-30,gridcolor="rgba(0,0,0,0)"),
+        yaxis=dict(gridcolor="#f0ede8"),margin=dict(l=0,r=0,t=10,b=10))
+    st.plotly_chart(fig_cat,use_container_width=True)
+    st.markdown("</div>",unsafe_allow_html=True)
 
 with tab_ml:
-    st.markdown("<div class='city-container' style='margin-top:12px;'>", unsafe_allow_html=True)
-    st.markdown("### Algorithmic Verification Vectors & Dimensional Clustering Performance")
-    
+    st.markdown("<div style='height:16px'></div>",unsafe_allow_html=True)
+    st.markdown("""<div class='section-wrap'>
+        <div class='section-title'>How good is the clustering?</div>
+        <div class='section-desc'>The model automatically finds how many neighborhood tiers exist
+        in the data — it doesn't assume. Silhouette score closer to 1 means tiers are clearly
+        separated. Davies-Bouldin closer to 0 means clusters don't overlap.</div>""",
+        unsafe_allow_html=True)
+
     if not ml_eval:
-        st.info("Algorithmic clustering metrics matrix unavailable or calculations skipped.")
+        st.info("ML evaluation not available.")
     else:
-        metric_cards_cols = st.columns(4)
-        with metric_cards_cols[0]:
-            st.metric("Optimal Clusters K Calculated", ml_eval.get("optimal_k", "—"))
-        with metric_cards_cols[1]:
-            st.metric("Silhouette Evaluation Coefficient", round(ml_eval.get("final_silhouette", 0), 3))
-        with metric_cards_cols[2]:
-            st.metric("Davies-Bouldin Separation Margin", round(ml_eval.get("final_davies_bouldin", 0), 3))
-        with metric_cards_cols[3]:
-            st.metric("Total PCA Variance Aggregation", f"{ml_eval.get('total_variance_explained', 0)}%")
+        m1,m2,m3,m4=st.columns(4)
+        for col,val,lbl in [
+            (m1, ml_eval.get("optimal_k","—"), "Tiers found"),
+            (m2, round(ml_eval.get("final_silhouette",0),3), "Silhouette score"),
+            (m3, round(ml_eval.get("final_davies_bouldin",0),3), "Davies-Bouldin"),
+            (m4, f"{ml_eval.get('total_variance_explained',0)}%", "PCA variance"),
+        ]:
+            with col:
+                st.markdown(f"<div class='ml-metric'><div class='val'>{val}</div>"
+                           f"<div class='lbl'>{lbl}</div></div>",unsafe_allow_html=True)
 
         st.markdown(
-            f"<div style='margin-top:18px; padding:14px 18px; border:3px solid #0f172a; border-radius:6px; background:#ffffff; color:#1e293b; font-size:14px; box-shadow:3px 3px 0px 0px #0f172a;'> "
-            f"<strong>Mathematical Partitioning Output Interpretation:</strong> {ml_eval.get('silhouette_interpretation','')}"
-            f"</div>",
-            unsafe_allow_html=True
-        )
+            f"<div style='margin-top:16px;padding:14px 18px;background:#faf9f7;"
+            f"border-radius:10px;border:1.5px solid #e8e4dc;font-size:14px;color:#4a4a4a;line-height:1.7'>"
+            f"<strong style='color:#1a1a1a'>Note: </strong>"
+            f"{ml_eval.get('silhouette_interpretation','')} "
+            f"PCA projects 7 dimensions of amenity data into 2D — if the dots below look separated by color, "
+            f"the tier labels are reliable."
+            f"</div>",unsafe_allow_html=True)
+        st.markdown("</div>",unsafe_allow_html=True)
 
-        st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
-        st.markdown("### PCA Principal Components Topology Array Grid")
-        
         if "pca_x" in df.columns and df["pca_x"].notna().any():
-            fig_pca = px.scatter(
-                df, x="pca_x", y="pca_y",
-                color="tier", text="zone_id",
-                size="total_score",
+            st.markdown("""<div class='section-wrap'>
+                <div class='section-title'>Cluster visualization (PCA)</div>
+                <div class='section-desc'>Each dot is a neighborhood zone. Zones that sit close together
+                have similar amenity profiles. Clear color separation means the tiers are real —
+                not just artifacts of the algorithm.</div>""",unsafe_allow_html=True)
+            fig_pca=px.scatter(df,x="pca_x",y="pca_y",color="tier",text="zone_id",size="total_score",
                 color_discrete_map=TIER_COLORS,
-                labels={"pca_x": "Spatial Eigenvector Component One (PC1)", "pca_y": "Spatial Eigenvector Component Two (PC2)"},
-                title=f"Transformed Model Space Cluster Coordinate Distribution Grid ({ml_eval.get('total_variance_explained',0)}% Cumulative Information Explained)",
-            )
-            fig_pca.update_traces(textposition="top center", textfont_size=10, textfont_family="Space Grotesk")
-            fig_pca.update_layout(
-                height=460,
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                font=dict(color="#1e293b", family="Space Grotesk"),
-                title_font=dict(color="#0f172a", size=15, family="Space Grotesk"),
-                xaxis=dict(gridcolor="#0f172a", gridwidth=1, zerolinecolor="#0f172a"),
-                yaxis=dict(gridcolor="#0f172a", gridwidth=1, zerolinecolor="#0f172a"),
-            )
-            st.plotly_chart(fig_pca, use_container_width=True)
-        else:
-            st.info("Spatial coordinate arrays contain no PCA coordinate matrices.")
-    st.markdown("</div>", unsafe_allow_html=True)
+                labels={"pca_x":"Principal Component 1","pca_y":"Principal Component 2"})
+            fig_pca.update_traces(textposition="top center",textfont_size=10,textfont_family="DM Sans")
+            fig_pca.update_layout(height=480,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#4a4a4a",family="DM Sans",size=12),
+                xaxis=dict(gridcolor="#f0ede8",zerolinecolor="#e8e4dc"),
+                yaxis=dict(gridcolor="#f0ede8",zerolinecolor="#e8e4dc"),
+                margin=dict(l=0,r=0,t=10,b=10))
+            st.plotly_chart(fig_pca,use_container_width=True)
+            st.markdown("</div>",unsafe_allow_html=True)
+
+        k_analysis=ml_eval.get("k_selection_analysis",{})
+        if k_analysis.get("k_range"):
+            st.markdown("""<div class='section-wrap'>
+                <div class='section-title'>How K was chosen</div>
+                <div class='section-desc'>The model tested every possible number of tiers from 2 to 6
+                and picked the one where neighborhoods were most distinctly grouped.
+                The peak of this curve is the K that was used.</div>""",unsafe_allow_html=True)
+            k_df=pd.DataFrame({"K (number of tiers)":k_analysis["k_range"],
+                               "Silhouette Score":k_analysis["silhouette_scores"]})
+            fig_k=px.line(k_df,x="K (number of tiers)",y="Silhouette Score",markers=True)
+            fig_k.update_traces(line_color="#1a1a1a",marker_color="#1a1a1a",marker_size=8)
+            fig_k.update_layout(height=280,paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#4a4a4a",family="DM Sans",size=12),
+                xaxis=dict(gridcolor="#f0ede8",dtick=1),
+                yaxis=dict(gridcolor="#f0ede8"),margin=dict(l=0,r=0,t=10,b=10))
+            st.plotly_chart(fig_k,use_container_width=True)
+            st.markdown("</div>",unsafe_allow_html=True)
 
 with tab_pipeline:
-    st.markdown("<div class='city-container' style='margin-top:12px;'>", unsafe_allow_html=True)
-    st.markdown("### Operational Telemetry Logs & Transformation Profile")
+    st.markdown("<div style='height:16px'></div>",unsafe_allow_html=True)
+    st.markdown("""<div class='section-wrap'>
+        <div class='section-title'>Data journey</div>
+        <div class='section-desc'>From raw API response to ranked neighborhood —
+        here's what happened to the data before it reached your screen.</div>""",
+        unsafe_allow_html=True)
+    p1,p2,p3=st.columns(3)
+    p1.metric("POIs fetched",f"{summary.get('total_pois_fetched',0):,}")
+    p2.metric("After cleaning",f"{summary.get('total_pois_after_cleaning',0):,}")
+    p3.metric("Retention rate",f"{summary.get('retention_rate_pct',0)}%")
+    st.markdown("<div style='margin-top:20px'>",unsafe_allow_html=True)
+    for step,count in summary.get("cleaning_steps",{}).items():
+        label=step.replace("_"," ").title()
+        st.markdown(f"""<div class='pipeline-step'>
+            <div class='step-dot'></div>
+            <div class='step-label'><span class='step-count'>{count}</span> records — {label}</div>
+        </div>""",unsafe_allow_html=True)
+    st.markdown("</div></div>",unsafe_allow_html=True)
 
-    pipeline_metric_cols = st.columns(3)
-    with pipeline_metric_cols[0]:
-        st.metric("Raw Coordinates Points Ingested", f"{summary.get('total_pois_fetched', 0):,}")
-    with pipeline_metric_cols[1]:
-        st.metric("Sanitized Datastore Target Profiles", f"{summary.get('total_pois_after_cleaning', 0):,}")
-    with pipeline_metric_cols[2]:
-        st.metric("Operational Record Retention Efficiency", f"{summary.get('retention_rate_pct', 0)}%")
+    st.markdown("""<div class='section-wrap'>
+        <div class='section-title'>Features the ML used</div>
+        <div class='section-desc'>These 7 density features (POIs per km²) are what KMeans clustered on.
+        Density rather than raw count means a zone with 8 restaurants in 0.5 km²
+        is correctly ranked above one with 8 restaurants spread across 5 km².</div>""",
+        unsafe_allow_html=True)
+    st.code(str(ml_eval.get("features_used",[])),language="python")
+    st.markdown("</div>",unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    st.markdown("#### Database Pipeline Operations Filtration Checklist Logs")
-    for step, count in summary.get("cleaning_steps", {}).items():
-        label = step.replace("_", " ").title()
-        st.markdown(f"&bull; `Database Filter layer Execute:` **{label}** Isolation complete &rarr; **{count}** anomalies scrubbed")
-
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    st.markdown("#### Model Feature Ingestion Matrix Definition Arrays")
-    st.code(str(ml_eval.get("features_used", [])), language="python")
-
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    st.markdown("#### Complete System Transmission Object Hierarchy")
-    with st.expander("Inspect JSON Object Footprint Model Interface Dump"):
+    with st.expander("Raw API response (JSON)"):
         st.json(data)
-    st.markdown("</div>", unsafe_allow_html=True)

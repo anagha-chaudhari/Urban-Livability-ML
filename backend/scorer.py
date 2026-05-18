@@ -35,8 +35,7 @@ def haversine_vectorized(
     center_lat: float,
     center_lon: float,
     lats: np.ndarray,
-    lons: np.ndarray,
-) -> np.ndarray:
+    lons: np.ndarray,) -> np.ndarray:
     R = 6371.0
     clat = np.radians(center_lat)
     clon = np.radians(center_lon)
@@ -89,24 +88,38 @@ def score_zone(
         clean_weights = DEFAULT_WEIGHTS.copy()
         logger.warning("All-zero weights detected — falling back to defaults")
 
+    area_km2 = max(float(zone.get("zone_area_km2", 1.0)), 0.1)
+    density_counts = {
+        cat: round(category_counts[cat] / area_km2, 3)
+        for cat in CATEGORY_KEYS
+    }
+
     total = sum(
-        min(category_counts[cat], POI_CAP) * clean_weights[cat]
+        min(density_counts[cat], POI_CAP) * clean_weights[cat]
         for cat in CATEGORY_KEYS
     )
 
     return {
-        "zone_id":         zone["zone_id"],
-        "lat":             round(lat, 6),
-        "lon":             round(lon, 6),
-        "total_score":     round(float(total), 2),
-        "poi_count":       int(zone.get("poi_count", 0)),
-        "food_count":      category_counts["food"],
-        "transit_count":   category_counts["transit"],
-        "health_count":    category_counts["health"],
-        "green_count":     category_counts["green"],
+        "zone_id": zone.get("zone_id", f"Zone_{zone.name}"),
+        "zone_area_km2": round(area_km2, 2),
+        "lat": round(lat, 6),
+        "lon": round(lon, 6),
+        "total_score": round(float(total), 2),
+        "poi_count": int(zone.get("poi_count", 0)),
+        "food_count": category_counts["food"],
+        "transit_count": category_counts["transit"],
+        "health_count": category_counts["health"],
+        "green_count": category_counts["green"],
         "education_count": category_counts["education"],
-        "finance_count":   category_counts["finance"],
-        "shopping_count":  category_counts["shopping"],
+        "finance_count": category_counts["finance"],
+        "shopping_count": category_counts["shopping"],
+        "food_density": density_counts["food"],
+        "transit_density": density_counts["transit"],
+        "health_density": density_counts["health"],
+        "green_density": density_counts["green"],
+        "education_density": density_counts["education"],
+        "finance_density": density_counts["finance"],
+        "shopping_density": density_counts["shopping"],
     }
 
 
