@@ -5,7 +5,7 @@
 
 "Which neighborhood should I live in?" is one of the most consequential decisions a person makes, and the only available answers are word-of-mouth and listings from people with a financial interest in your choice. I wanted to see what an honest, data-driven answer looks like.
 
-Cityello fetches real geospatial data across a city, scores every zone by how well it serves daily life, and uses unsupervised machine learning to surface livability tiers. The results change depending on who you are — a student, a family, a working professional, because the same city means something different to each.
+Cityello fetches real geospatial data across a city, scores every zone by how well it serves daily life, and uses unsupervised machine learning to surface livability tiers. The results change depending on who you are - a student, a family, a working professional, because the same city means something different to each.
 
 <!-- BADGES -->
 <div align="center">
@@ -23,11 +23,11 @@ Cityello fetches real geospatial data across a city, scores every zone by how we
 
 ## The problem with "walkability scores"
 
-Most neighborhood scoring tools give you a single number. That number is computed from assumptions baked into the tool — assumptions about what matters and how much.
+Most neighborhood scoring tools give you a single number. That number is computed from assumptions baked into the tool - assumptions about what matters and how much.
 
 Cityello exposes those assumptions as user-controlled weights. You decide what a good neighborhood means. The pipeline scores it accordingly.
 
-There is a second, less obvious problem: raw amenity counts are misleading. Eight restaurants in 0.5 km² and eight restaurants in 5 km² are not the same neighborhood. The scoring layer normalizes by zone area [**POIs per km², not raw count**] — so the model reflects density, not just presence.
+There is a second, less obvious problem: raw amenity counts are misleading. Eight restaurants in 0.5 km² and eight restaurants in 5 km² are not the same neighborhood. The scoring layer normalizes by zone area [**POIs per km², not raw count**], so the model reflects density, not just presence.
 
 ---
 
