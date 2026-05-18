@@ -1,4 +1,4 @@
-# Cityello
+# Cityello 🍁
 
 ### Urban Neighborhood livability analytics for Indian cities.
 
