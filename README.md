@@ -1,3 +1,11 @@
+# Cityello
+
+### Urban Neighborhood livability analytics for Indian cities.
+
+"Which neighborhood should I live in?" is one of the most consequential decisions a person makes, and the only available answers are word-of-mouth and listings from people with a financial interest in your choice. I wanted to see what an honest, data-driven answer looks like.
+
+Cityello fetches real geospatial data across a city, scores every zone by how well it serves daily life, and uses unsupervised machine learning to surface livability tiers. The results change depending on who you are — a student, a family, a working professional, because the same city means something different to each.
+
 <!-- BADGES -->
 <div align="center">
 
@@ -7,19 +15,8 @@
 ![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/ML-scikit--learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white)
 ![Geoapify](https://img.shields.io/badge/Data-Geoapify%20%2F%20OSM-4CAF50?style=flat-square&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)
 
 </div>
-
----
-
-# Cityello
-
-### Neighborhood livability analytics for Indian cities.
-
-"Which neighborhood should I live in?" is one of the most consequential decisions a person makes, and the only available answers are word-of-mouth and listings from people with a financial interest in your choice. I wanted to see what an honest, data-driven answer looks like.
-
-Cityello fetches real geospatial data across a city, scores every zone by how well it serves daily life, and uses unsupervised machine learning to surface livability tiers. The results change depending on who you are — a student, a family, a working professional, because the same city means something different to each.
 
 ---
 
@@ -41,7 +38,9 @@ Python 3.11 | FastAPI | SQLite | scikit-learn | pandas | NumPy | Pydantic | Slow
 
 ## Architecture
 
-![ArchitectureOverview](images/overview.png)
+<p align="center">
+  <img src="images/overview.png" width="500"/>
+</p>
 
 The pipeline is intentionally linear and unidirectional. Data flows one way, each stage owns exactly one responsibility, and no stage knows what comes after it.
 
@@ -65,7 +64,9 @@ The model clusters neighborhoods by amenity density profile — not by location,
 
 ►  The number of tiers is not preset. The pipeline sweeps K from 2 to 6, selects the value that maximizes silhouette score, then validates with the Davies-Bouldin index. The system tells you how confident it is in those tiers — and if the answer is "not very," it says so explicitly rather than presenting uncertain results with equal confidence.
 
-![ML Pipeline](images/ml_pipeline.jpeg)
+<p align="center">
+  <img src="images/ml_pipeline.jpeg" width="600"/>
+</p>
 
 ---
 
