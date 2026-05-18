@@ -6,9 +6,13 @@ import requests
 import logging
 import hashlib
 import pathlib
-import time
+import math
+
 from dotenv import load_dotenv
 from sklearn.cluster import KMeans
+
+from database import init_db, pois_are_fresh, load_pois_from_db, save_pois_to_db, log_fetch
+init_db()
 
 load_dotenv()
 
@@ -63,6 +67,7 @@ GEOAPIFY_CATEGORY_MAP = {
     "convenience": "commercial.convenience",
 }
 
+"""
 # adding cache helper layer to avoid unnecessary api calls
 
 def _cache_key(city: str) -> pathlib.Path:
@@ -100,6 +105,7 @@ def _save_cache(city: str, df: pd.DataFrame) -> None:
         logger.info(f"Cache SAVED for '{city}' — {len(df)} POIs")
     except Exception as e:
         logger.warning(f"Cache write error: {e}")
+"""
 
 # fetch data
 
@@ -210,16 +216,12 @@ def fetch_all_pois(city: str = "Pune") -> tuple[pd.DataFrame, dict]:
         raise ValueError(f"City '{city}' not supported. Add its bbox to CITY_BBOXES.")
 
     # Check cache first
-    cached = _load_cache(city)
-    if cached is not None:
-        report = {
-            "initial_count": len(cached),
-            "final_count": len(cached),
-            "retention_rate": 100.0,
-            "steps": {"source": "cache"},
-            "cached": True,
-        }
-        return cached, report
+    if pois_are_fresh(city):
+        df = load_pois_from_db(city)
+        return df, {
+            "initial_count": len(df), "final_count": len(df),
+            "retention_rate": 100.0, "steps": {"source": "sqlite_cache"}, "cached": True
+    }
 
     # Live fetch
     all_amenities = [a for group in AMENITY_CATEGORIES.values() for a in group]
@@ -240,7 +242,8 @@ def fetch_all_pois(city: str = "Pune") -> tuple[pd.DataFrame, dict]:
     report["cached"] = False
 
     if len(clean_df) >= 20:
-        _save_cache(city, clean_df)
+        save_pois_to_db(city, clean_df)
+        log_fetch(city, "all", len(clean_df))
 
     return clean_df, report
 
@@ -272,9 +275,23 @@ def derive_neighborhood_centers(
         .rename(columns={"category": "dominant_type"})
     )
     centers = centers.merge(dominant, on="geo_zone")
+    
+    area_list = []
+    for zone_idx, group in pois_df.groupby("geo_zone"):
+        lat_range = group["lat"].max() - group["lat"].min()
+        lon_range = group["lon"].max() - group["lon"].min()
+        avg_lat = group["lat"].mean()
+        area_km2  = lat_range * 111.0 * lon_range * 111.0 * math.cos(math.radians(avg_lat))
+        area_list.append({
+            "geo_zone": zone_idx,
+            "zone_area_km2": round(max(area_km2, 0.1), 3)
+    })
+
+    centers = centers.merge(pd.DataFrame(area_list), on="geo_zone")
+
     centers["zone_id"] = centers.apply(
-        lambda r: f"Zone {int(r['geo_zone']) + 1} ({r['dominant_type'].title()})",
-        axis=1,
+    lambda r: f"Zone {int(r['geo_zone']) + 1} ({r['dominant_type'].title()})",
+    axis=1,
     )
 
     logger.info(f"Derived {n_zones} neighborhood zones from {len(pois_df)} POIs")

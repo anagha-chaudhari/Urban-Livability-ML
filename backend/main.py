@@ -3,7 +3,7 @@ import pathlib
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+#from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -13,9 +13,9 @@ from slowapi.errors import RateLimitExceeded
 from data_pipeline import (
     fetch_all_pois,
     derive_neighborhood_centers,
-    AMENITY_CATEGORIES,
-    CACHE_DIR,
+    AMENITY_CATEGORIES
 )
+
 from scorer import score_all_zones, DEFAULT_WEIGHTS, PERSONA_WEIGHTS
 from ml import run_clustering
 
@@ -97,14 +97,18 @@ def metadata():
     }
 
 
-@app.delete("/cache/clear")
-def clear_cache():
-    """Development utility — clears all cached POI files."""
-    deleted = []
-    for f in CACHE_DIR.glob("pois_*.json"):
-        f.unlink()
-        deleted.append(f.name)
-    return {"deleted_files": deleted, "count": len(deleted)}
+@app.get("/db/stats")
+def db_stats():
+    from database import get_db_stats
+    return get_db_stats()
+
+@app.delete("/db/clear/{city}")
+def clear_city_data(city: str):
+    from database import clear_city as db_clear_city
+    city = city.strip().title()
+    if city not in SUPPORTED_CITIES:
+        raise HTTPException(status_code=400, detail=f"Unknown city: {city}")
+    return {"city": city, "deleted": db_clear_city(city)}
 
 
 @app.post("/score")
