@@ -96,12 +96,28 @@ Same city. Same data. Same pipeline. Different inputs, different rankings  ►  
 ## Running it
 
 ```bash
+# create virtual environment
+python -m venv venv
+
+# activate venv (Windows)
+venv\Scripts\activate
+
+# backend setup
 cd backend
 pip install -r requirements.txt
-echo "GEOAPIFY_API_KEY=your_key" > .env
+
+# add API key
+echo GEOAPIFY_API_KEY=your_key > .env
+
+# start FastAPI server
 uvicorn main:app --reload --port 8000
 
-# new terminal
+# < open new terminal >
+
+# activate venv again
+venv\Scripts\activate
+
+# frontend setup
 cd frontend
 streamlit run app.py
 ```
