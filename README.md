@@ -48,7 +48,7 @@ The pipeline is intentionally linear and unidirectional. Data flows one way, eac
 
 `database` sits between fetching and scoring. Persisting at this point means the 15-second cold fetch happens once per city per day, and every subsequent request — regardless of persona or weight configuration — skips it entirely.
 
-`scorer` comes before the ML because the ML should never see raw coordinates or raw API responses. By the time data reaches `ml.py`, it is already a clean numeric feature matrix. The ML layer has one job: find structure in numbers. It should not also be responsible for understanding what those numbers mean.
+`scorer` comes before the ML because the ML should never see raw coordinates or raw API responses. By the time data reaches `ml.py`, it is already a clean numeric feature matrix. 
 
 `main.py` is last because the API is a delivery mechanism. Routing, validation, and error handling are its only concerns. The pipeline it calls is already correct by the time it touches it.
 
@@ -72,7 +72,7 @@ The model clusters neighborhoods by amenity density profile — not by location,
 
 ## Migrated to SQLite
 
-The previous version wrote cleaned POI data to a JSON file on disk. It worked until it didn't — no schema, no duplicate protection, no concurrent access safety.
+The previous version wrote cleaned POI data to a JSON file on disk. It worked until it didn't: no schema, no duplicate protection, no concurrent access safety.
 
 SQLite costs nothing to run, requires no infrastructure, and gives real database guarantees. `UNIQUE` constraints prevent duplicate POIs regardless of how many times the same city is fetched. WAL mode allows reads during writes. A deterministic weights hash enables per-configuration result caching so the full scoring and clustering pipeline only runs once per unique weight combination.
 
@@ -84,7 +84,9 @@ The scores cache table is designed and implemented. It is not yet connected to t
 
 Three presets encode genuinely different optimization functions over the same amenity space.
 
-A **Student** without a car in an Indian city lives by transit access and campus proximity. A **Family** places hospitals and schools above everything else. A **Working Professional** optimizes for food, commute, and financial services. Users can also adjust any weight manually between 0 and 5.
+👩‍🎓 A **Student** without a car in an Indian city lives by transit access and campus proximity. 
+👨‍👩‍👧‍👦 A **Family** places hospitals and schools above everything else. 
+👩‍⚕️ A **Working Professional** optimizes for food, commute, and financial services. Users can also adjust any weight manually between 0 and 5.
 
 Same city. Same data. Same pipeline. Different inputs, different rankings  ►  each locally correct for its intended user.
 
@@ -111,17 +113,15 @@ API docs at `http://localhost:8000/docs`.
 
 ---
 
-
 ## Known gaps & planned improvements
-
-The `/db/clear/{city}` endpoint has no authentication. Anyone who finds the URL can delete a city's data. A header API key is the fix. It is not there yet.
-
-`init_db()` runs at module import time. If the database path is not writable, the application crashes before starting rather than failing gracefully. This belongs in a FastAPI lifespan handler.
 
 The 15 Geoapify calls in `fetch_all_pois` are sequential and synchronous. The 24-hour cache means most requests never hit this path — but for the ones that do, `aiohttp` with `asyncio.gather()` is the correct solution.
 
 OSM data quality is uneven across Indian cities. Central neighborhoods are well-mapped. Peripheral areas are not. This is a systematic bias the current system does not measure or correct for.
 
+The `/db/clear/{city}` endpoint has no authentication. Anyone who finds the URL can delete a city's data. A header API key is the fix. It is not there yet.
+
+`init_db()` runs at module import time. If the database path is not writable, the application crashes before starting rather than failing gracefully. This belongs in a FastAPI lifespan handler.
 
 ---
 
