@@ -47,7 +47,7 @@ The pipeline is intentionally linear and unidirectional. Data flows one way, eac
 
 `data_pipeline` comes first because everything downstream is meaningless without clean, validated data. Garbage in, garbage tiers out. Cleaning and zone derivation happen here before any scoring logic runs. This means the scorer never has to defend itself against bad input.
 
-`database` sits between fetching and scoring. Persisting at this point means the 15-second cold fetch happens once per city per day, and every subsequent request — regardless of persona or weight configuration — skips it entirely.
+`database` sits between fetching and scoring. Persisting at this point means the 15-second cold fetch happens once per city per day, and every subsequent request regardless of persona or weight configuration - skips it entirely.
 
 `scorer` comes before the ML because the ML should never see raw coordinates or raw API responses. By the time data reaches `ml.py`, it is already a clean numeric feature matrix. 
 
@@ -59,11 +59,11 @@ This is a modular structure.
 
 ## What the ML actually does
 
-The model clusters neighborhoods by amenity density profile — not by location, not by total score.
+The model clusters neighborhoods by amenity density profile, not by location, not by total score.
 
 ►  Two zones with identical total scores but different compositions will not necessarily land in the same tier. A zone high on food and transit but low on health is a different kind of neighborhood than one high on health and education. KMeans on 7-dimensional density vectors captures this nuance. A single ranking number hides it.
 
-►  The number of tiers is not preset. The pipeline sweeps K from 2 to 6, selects the value that maximizes silhouette score, then validates with the Davies-Bouldin index. The system tells you how confident it is in those tiers — and if the answer is "not very," it says so explicitly rather than presenting uncertain results with equal confidence.
+►  The number of tiers is not preset. The pipeline sweeps K from 2 to 6, selects the value that maximizes silhouette score, then validates with the Davies-Bouldin index. The system tells you how confident it is in those tiers and if the answer is "not very," it says so explicitly rather than presenting uncertain results with equal confidence.
 
 <p align="center">
   <img src="images/ml_pipeline.jpeg" width="600"/>
@@ -77,7 +77,6 @@ The previous version wrote cleaned POI data to a JSON file on disk. It worked un
 
 SQLite costs nothing to run, requires no infrastructure, and gives real database guarantees. `UNIQUE` constraints prevent duplicate POIs regardless of how many times the same city is fetched. WAL mode allows reads during writes. A deterministic weights hash enables per-configuration result caching so the full scoring and clustering pipeline only runs once per unique weight combination.
 
-The scores cache table is designed and implemented. It is not yet connected to the API endpoint. That is the next commit.
 
 ---
 
@@ -171,13 +170,15 @@ API docs at `http://localhost:8000/docs`.
 
 ## Known gaps & planned improvements
 
-The 15 Geoapify calls in `fetch_all_pois` are sequential and synchronous. The 24-hour cache means most requests never hit this path — but for the ones that do, `aiohttp` with `asyncio.gather()` is the correct solution.
+The 15 Geoapify calls in `fetch_all_pois` are sequential and synchronous. The 24-hour cache means most requests never hit this path, but for the ones that do, `aiohttp` with `asyncio.gather()` is the correct solution.
 
 OSM data quality is uneven across Indian cities. Central neighborhoods are well-mapped. Peripheral areas are not. This is a systematic bias the current system does not measure or correct for.
 
 The `/db/clear/{city}` endpoint has no authentication. Anyone who finds the URL can delete a city's data. A header API key is the fix. It is not there yet.
 
 `init_db()` runs at module import time. If the database path is not writable, the application crashes before starting rather than failing gracefully. This belongs in a FastAPI lifespan handler.
+
+The scores cache table is designed and implemented. It is not yet connected to the API endpoint. That is the next commit.
 
 ---
 
