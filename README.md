@@ -92,6 +92,51 @@ Same city. Same data. Same pipeline. Different inputs, different rankings  ►  
 
 ---
 
+## Try it!
+
+<p align="center">
+  <img src="images/1.page1.png" width="900"/>
+</p>
+
+---
+
+<p align="center">
+  <img src="images/2.top_neighborhoods.png" width="900"/>
+</p>
+
+---
+
+<p align="center">
+  <img src="images/3.neighborhood_map.png" width="900"/>
+</p>
+
+---
+
+<p align="center">
+  <img src="images/4.analytics.png" width="900"/>
+</p>
+
+<p align="center">
+  <img src="images/4.analytics1.png" width="900"/>
+</p>
+
+---
+
+<p align="center">
+  <img src="images/5.ml_evaluation.png" width="900"/>
+</p>
+
+<p align="center">
+  <img src="images/5.pca.png" width="900"/>
+</p>
+
+---
+
+<p align="center">
+  <img src="images/6.datajourney.png" width="900"/>
+</p>
+
+---
 
 ## Running it
 
