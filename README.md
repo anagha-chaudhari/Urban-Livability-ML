@@ -65,10 +65,6 @@ The model clusters neighborhoods by amenity density profile, not by location, no
 
 ►  The number of tiers is not preset. The pipeline sweeps K from 2 to 6, selects the value that maximizes silhouette score, then validates with the Davies-Bouldin index. The system tells you how confident it is in those tiers and if the answer is "not very," it says so explicitly rather than presenting uncertain results with equal confidence.
 
-<p align="center">
-  <img src="images/ml_pipeline.jpeg" width="600"/>
-</p>
-
 ---
 
 ## Migrated to SQLite
