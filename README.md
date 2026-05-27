@@ -170,10 +170,6 @@ The 15 Geoapify calls in `fetch_all_pois` are sequential and synchronous. The 24
 
 OSM data quality is uneven across Indian cities. Central neighborhoods are well-mapped. Peripheral areas are not. This is a systematic bias the current system does not measure or correct for.
 
-The `/db/clear/{city}` endpoint has no authentication. Anyone who finds the URL can delete a city's data. A header API key is the fix. It is not there yet.
-
-`init_db()` runs at module import time. If the database path is not writable, the application crashes before starting rather than failing gracefully. This belongs in a FastAPI lifespan handler.
-
 The scores cache table is designed and implemented. It is not yet connected to the API endpoint. That is the next commit.
 
 ---
