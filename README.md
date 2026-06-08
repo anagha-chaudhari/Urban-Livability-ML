@@ -21,7 +21,7 @@ Cityello fetches real geospatial data across a city, scores every zone by how we
 
 ---
 
-## The problem with "walkability scores"
+## The problem
 
 Most neighborhood scoring tools give you a single number. That number is computed from assumptions baked into the tool - assumptions about what matters and how much.
 
