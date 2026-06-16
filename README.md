@@ -19,8 +19,6 @@ Cityello fetches real geospatial data across a city, scores every zone by how we
 
 </div>
 
----
-
 ## The problem
 
 Most neighborhood scoring tools give you a single number. That number is computed from assumptions baked into the tool - assumptions about what matters and how much.
@@ -29,13 +27,12 @@ Cityello exposes those assumptions as user-controlled weights. You decide what a
 
 There is a second, less obvious problem: raw amenity counts are misleading. Eight restaurants in 0.5 km² and eight restaurants in 5 km² are not the same neighborhood. The scoring layer normalizes by zone area [**POIs per km², not raw count**], so the model reflects density, not just presence.
 
----
 
-## Stack
+## Tech Stack
 
 Python 3.11 | FastAPI | SQLite | scikit-learn | pandas | NumPy | Pydantic | SlowAPI | Streamlit | Plotly | Folium | Geoapify (OpenStreetMap)
 
----
+
 
 ## Architecture
 
@@ -55,7 +52,6 @@ The pipeline is intentionally linear and unidirectional. Data flows one way, eac
 
 This is a modular structure.
 
----
 
 ## What the ML actually does
 
@@ -65,7 +61,6 @@ The model clusters neighborhoods by amenity density profile, not by location, no
 
 ►  The number of tiers is not preset. The pipeline sweeps K from 2 to 6, selects the value that maximizes silhouette score, then validates with the Davies-Bouldin index. The system tells you how confident it is in those tiers and if the answer is "not very," it says so explicitly rather than presenting uncertain results with equal confidence.
 
----
 
 ## Migrated to SQLite
 
@@ -74,7 +69,6 @@ The previous version wrote cleaned POI data to a JSON file on disk. It worked un
 SQLite costs nothing to run, requires no infrastructure, and gives real database guarantees. `UNIQUE` constraints prevent duplicate POIs regardless of how many times the same city is fetched. WAL mode allows reads during writes. A deterministic weights hash enables per-configuration result caching so the full scoring and clustering pipeline only runs once per unique weight combination.
 
 
----
 
 ## Persona system
 
@@ -169,8 +163,6 @@ API docs at `http://localhost:8000/docs`.
 The 15 Geoapify calls in `fetch_all_pois` are sequential and synchronous. The 24-hour cache means most requests never hit this path, but for the ones that do, `aiohttp` with `asyncio.gather()` is the correct solution.
 
 OSM data quality is uneven across Indian cities. Central neighborhoods are well-mapped. Peripheral areas are not. This is a systematic bias the current system does not measure or correct for.
-
-The scores cache table is designed and implemented. It is not yet connected to the API endpoint. That is the next commit.
 
 ---
 
